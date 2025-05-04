@@ -1,22 +1,27 @@
-const mongoose = require('mongoose');
-const bcrypt = require ('bcryptjs');
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-
-const userSchema = new mongoose.Schema({
-    name:{
-        type: String,
-        required: true
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
     },
-    email:{
-        type: String,
-       required: true,
-       unique: true 
+    email: {
+      type: String,
+      required: true,
+      unique: true,
     },
-    password:{
-        type: String,
-        required: true
+    password: {
+      type: String,
+      required: true,
     },
-    
-}, { timestamps: true });
-  module.exports = mongoose.model("User", userSchema);
+    wallet: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Wallet",
+    },
+  },
+  { timestamps: true }
+);
+module.exports = mongoose.model("User", userSchema);

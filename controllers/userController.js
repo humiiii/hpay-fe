@@ -85,14 +85,41 @@ const loginUser = async (req, res) => {
     }
     // Generate JWT token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
+      expiresIn: "1d",
     });
-    res
-      .status(200)
-      .json({ message: "Login successful", userId: user._id, token });
+    res.status(200).json({ message: "Login successful", token });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
 };
 
-module.exports = { registerUser, loginUser, getUserProfile };
+// Check if user has a wallet
+const checkUserWallet = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).populate("wallet");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (!user.wallet) {
+      return res.status(200).json({
+        hasWallet: false,
+        message: "No wallet associated with this user",
+      });
+    }
+
+    return res.status(200).json({
+      hasWallet: true,
+      wallet: user.wallet,
+    });
+  } catch (error) {
+    console.error("Error checking wallet:", error);
+    return res.status(500).json({
+      message: "Server error while checking wallet",
+      error: error.message,
+    });
+  }
+};
+
+module.exports = { registerUser, loginUser, getUserProfile, checkUserWallet };

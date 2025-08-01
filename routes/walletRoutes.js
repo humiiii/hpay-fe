@@ -1,13 +1,24 @@
-const express = require ("express");
-const walletController = require("../controllers/walletController");
+const express = require("express");
+const authMiddleware = require("../middlewares/authMiddleware");
+const {
+  createWallet,
+  getWallet,
+  depositMoney,
+  withdrawMoney,
+  transferFunds,
+  getTransaction,
+} = require("../controllers/walletController");
 
 const router = express.Router();
 
-router.post("/create", walletController.createWallet);
-router.get("/:userId", walletController.getWallet);
-router.post("/deposit", walletController.depositMoney);
-router.post("/withdraw", walletController.withdrawMoney);
-router.post("/transfer", walletController.transferFunds);
-router.get("/transaction/:userId", walletController.getTransaction);
+// Apply auth middleware to all wallet routes:
+router.use(authMiddleware);
 
-module.exports= router;
+router.post("/create", createWallet);
+router.get("/:userId", getWallet);
+router.post("/deposit", depositMoney);
+router.post("/withdraw", withdrawMoney);
+router.post("/transfer", transferFunds);
+router.get("/transaction/:userId", getTransaction);
+
+module.exports = router;

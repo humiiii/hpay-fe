@@ -1,8 +1,9 @@
-const express =require("express");
-const TransactionController =require ("../controllers/TransactionController");
+const express = require("express");
+const TransactionController = require("../controllers/transactionController");
 const authMiddleware = require("../middlewares/authMiddleware");
 const router = express.Router();
 
-router.get("/",authMiddleware, TransactionController.getUserTransactions);
+// GET /api/transactions - Get current user's transactions (protected)
+router.get("/", authMiddleware, TransactionController.getUserTransactions);
 
 module.exports = router;

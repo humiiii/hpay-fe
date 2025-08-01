@@ -11,7 +11,7 @@ const hashPassword = async (password) => {
 
 // Helper function to generate JWT token
 const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET, {
+  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
 };
@@ -38,19 +38,24 @@ const registerUser = async (req, res) => {
     if (!user._id) {
       return res
         .status(500)
-        .json({ message: "User ID is missing, check database connections" });
+        .json({ message: "User ID missing, check database connections" });
     }
 
     // Generate token
     const token = generateToken(user._id);
 
+    // To avoid sending password back
+    const userResponse = { ...user.toObject() };
+    delete userResponse.password;
+
     res.status(201).json({
       message: "User registered successfully",
-      user,
-      token: token,
+      user: userResponse,
+      token,
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    console.error("Register user error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -63,7 +68,8 @@ const getUserProfile = async (req, res) => {
     }
     res.json(user);
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    console.error("Get user profile error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -83,13 +89,14 @@ const loginUser = async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
+
     // Generate JWT token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    const token = generateToken(user._id);
+
     res.status(200).json({ message: "Login successful", token });
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    console.error("Login user error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -104,6 +111,7 @@ const checkUserWallet = async (req, res) => {
 
     if (!user.wallet) {
       return res.status(200).json({
+        user: { _id: user._id, name: user.name, email: user.email }, // minimal user info, no password
         hasWallet: false,
         message: "No wallet associated with this user",
       });

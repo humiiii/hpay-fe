@@ -21,6 +21,8 @@ const walletSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+
 console.log(walletSchema.indexes());
 
 const Wallet = mongoose.model("Wallet", walletSchema);
